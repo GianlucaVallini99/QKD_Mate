@@ -1,0 +1,15 @@
+# Configurazione Nodo QKD
+# Modifica questo file per configurare quale nodo gestire
+
+# Tipo di nodo: "alice" o "bob"
+node_type: alice
+
+# Configurazioni opzionali (decommentare per sovrascrivere i default)
+# monitoring:
+#   default_interval: 30  # secondi tra i controlli
+#   alert_after_failures: 3  # numero di fallimenti prima dell'alert
+#
+# diagnostics:
+#   run_ping_test: true
+#   run_port_test: true
+#   ping_timeout: 2  # secondi
