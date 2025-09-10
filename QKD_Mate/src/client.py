@@ -8,6 +8,7 @@ import yaml
 from .utils import retry, QKDClientError
 
 def _load_yaml(path: str | Path) -> dict:
+    path = Path(path).resolve()  # Convert to absolute path
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
@@ -30,9 +31,12 @@ class QKDClient:
       - api_paths: {status: "/api/status", keys: "/api/keys"}
     """
     def __init__(self, config_path: str | Path):
+        config_path = Path(config_path).resolve()
         cfg = _load_yaml(config_path)
         if "extends" in cfg:
-            common = _load_yaml(cfg["extends"])
+            # Resolve extends path relative to the config file's directory
+            extends_path = config_path.parent / cfg["extends"]
+            common = _load_yaml(extends_path)
             cfg = _merge(common, {k: v for k, v in cfg.items() if k != "extends"})
         self.base_url: str = cfg["endpoint"].rstrip("/")
         self.cert = (cfg["cert"], cfg["key"])
