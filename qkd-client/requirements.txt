@@ -1,6 +1,0 @@
-# QKD Client Dependencies
-# Add required packages here, e.g.:
-# requests
-# pyyaml
-# cryptography
-# urllib3
