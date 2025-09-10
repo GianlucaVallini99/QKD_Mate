@@ -1,0 +1,7 @@
+# Impostazioni comuni
+timeout_sec: 10
+retries: 2
+verify_hostname: true
+api_paths:
+  status: "/api/status"
+  keys: "/api/keys"
