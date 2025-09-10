@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+'''# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
@@ -204,4 +204,4 @@ cython_debug/
 # Marimo
 marimo/_static/
 marimo/_lsp/
-__marimo__/
+__marimo__/ '''
