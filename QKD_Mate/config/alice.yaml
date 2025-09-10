@@ -1,4 +1,4 @@
-extends: "config/common.yaml"
+extends: "common.yaml"
 endpoint: "https://78.40.171.143:443"
 cert: "certs/client_Alice2.crt"
 key:  "certs/client_Alice2.key"

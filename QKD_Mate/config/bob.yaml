@@ -1,4 +1,4 @@
-extends: "config/common.yaml"
+extends: "common.yaml"
 endpoint: "https://78.40.171.144:443"
 cert: "certs/client_Bob2.crt"
 key:  "certs/client_Bob2.key"
