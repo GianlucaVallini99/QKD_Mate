@@ -1,4 +1,10 @@
 import argparse
+import sys
+from pathlib import Path
+
+# Aggiungi la directory parent al path per poter importare src
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from src.alice_client import alice_client
 from src.bob_client import bob_client
 

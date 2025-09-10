@@ -30,13 +30,23 @@ class QKDClient:
       - api_paths: {status: "/api/status", keys: "/api/keys"}
     """
     def __init__(self, config_path: str | Path):
+        config_path = Path(config_path)
         cfg = _load_yaml(config_path)
         if "extends" in cfg:
-            common = _load_yaml(cfg["extends"])
+            # Risolvi il percorso relativo rispetto alla directory del file di config
+            extends_path = (config_path.parent / cfg["extends"]).resolve()
+            common = _load_yaml(extends_path)
             cfg = _merge(common, {k: v for k, v in cfg.items() if k != "extends"})
         self.base_url: str = cfg["endpoint"].rstrip("/")
-        self.cert = (cfg["cert"], cfg["key"])
-        self.verify = cfg["ca"]  # CA file
+        
+        # Risolvi i percorsi dei certificati rispetto alla directory del file di config
+        config_dir = config_path.parent
+        cert_path = str((config_dir / cfg["cert"]).resolve())
+        key_path = str((config_dir / cfg["key"]).resolve())
+        ca_path = str((config_dir / cfg["ca"]).resolve())
+        
+        self.cert = (cert_path, key_path)
+        self.verify = ca_path  # CA file
         self.timeout = int(cfg.get("timeout_sec", 10))
         self.retries = int(cfg.get("retries", 2))
         self.api_paths: Dict[str, str] = cfg.get("api_paths", {})
