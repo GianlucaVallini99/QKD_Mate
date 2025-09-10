@@ -307,7 +307,7 @@ Distribuito sotto licenza MIT. Vedi `LICENSE` per maggiori informazioni.
 
 ## 👥 Autori
 
-- Il tuo nome - [@tuousername](https://github.com/tuousername)
+- Il tuo nome - @GianlucaVallini99
 
 ## 🙏 Riconoscimenti
 
