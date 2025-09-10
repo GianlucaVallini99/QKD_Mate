@@ -20,6 +20,26 @@ def _merge(base: dict, override: dict) -> dict:
             out[k] = v
     return out
 
+def _resolve_relative_path(base_dir: Path, candidate: str | Path) -> Path:
+    """
+    Resolve a candidate path using a robust strategy that avoids dependency on CWD:
+      1) If candidate is absolute, return as-is
+      2) Try relative to the provided base_dir (e.g., the config file directory)
+      3) Try relative to the repository root (two levels up from this file)
+      4) Fallback to current working directory
+    """
+    p = Path(candidate)
+    if p.is_absolute():
+        return p
+    candidate_from_base = (base_dir / p)
+    if candidate_from_base.exists():
+        return candidate_from_base
+    repo_root = Path(__file__).resolve().parent.parent
+    candidate_from_repo = (repo_root / p)
+    if candidate_from_repo.exists():
+        return candidate_from_repo
+    return Path.cwd() / p
+
 class QKDClient:
     """
     Client HTTPS mTLS per nodi QKD/KME.
@@ -30,10 +50,19 @@ class QKDClient:
       - api_paths: {status: "/api/status", keys: "/api/keys"}
     """
     def __init__(self, config_path: str | Path):
-        cfg = _load_yaml(config_path)
+        config_file_path = Path(config_path)
+        cfg = _load_yaml(config_file_path)
         if "extends" in cfg:
-            common = _load_yaml(cfg["extends"])
+            extends_path = _resolve_relative_path(config_file_path.parent.resolve(), cfg["extends"])
+            common = _load_yaml(extends_path)
             cfg = _merge(common, {k: v for k, v in cfg.items() if k != "extends"})
+
+        # Normalize file paths (cert, key, ca) relative to the config file directory
+        config_dir = config_file_path.parent.resolve()
+        for key in ["cert", "key", "ca"]:
+            if key in cfg:
+                resolved_path = _resolve_relative_path(config_dir, cfg[key])
+                cfg[key] = str(resolved_path)
         self.base_url: str = cfg["endpoint"].rstrip("/")
         self.cert = (cfg["cert"], cfg["key"])
         self.verify = cfg["ca"]  # CA file
