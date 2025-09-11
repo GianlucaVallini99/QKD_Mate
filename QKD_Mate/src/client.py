@@ -1,7 +1,8 @@
 import json
 import ssl
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
+from urllib.parse import urljoin
 
 import requests
 import yaml
@@ -23,12 +24,12 @@ def _merge(base: dict, override: dict) -> dict:
 
 class QKDClient:
     """
-    Client HTTPS mTLS per nodi QKD/KME.
+    Client HTTPS mTLS per nodi QKD/KME conforme a ETSI GS QKD 014.
     Config YAML:
       - endpoint: https://IP:443
       - cert, key, ca: path ai file in certs/
       - timeout_sec, retries
-      - api_paths: {status: "/api/status", keys: "/api/keys"}
+      - api_paths: {status: "/api/v1/keys/{slave_id}/status", ...}
     """
     def __init__(self, config_path: str | Path):
         config_path = Path(config_path).resolve()
@@ -53,8 +54,12 @@ class QKDClient:
         # opzionale: verifica hostname
         self.verify_hostname = bool(cfg.get("verify_hostname", True))
 
-    def _url(self, key_or_path: str) -> str:
+    def _url(self, key_or_path: str, **kwargs) -> str:
+        """Costruisce URL sostituendo i placeholder come {slave_id}"""
         path = self.api_paths.get(key_or_path, key_or_path)
+        # Sostituisce i placeholder nel path
+        if kwargs:
+            path = path.format(**kwargs)
         return f"{self.base_url}{path}"
 
     @retry((requests.RequestException,), tries=3, delay=0.8)
@@ -66,9 +71,18 @@ class QKDClient:
         return r
 
     def _handle(self, r: requests.Response) -> Any:
+        """Gestisce la risposta e gli errori secondo ETSI"""
         try:
             r.raise_for_status()
         except requests.HTTPError as e:
+            # Per errori 400/401/503, prova a estrarre il messaggio JSON
+            if r.status_code in [400, 401, 503]:
+                try:
+                    error_data = r.json()
+                    if "message" in error_data:
+                        raise QKDClientError(f"HTTP {r.status_code}: {error_data['message']}") from e
+                except json.JSONDecodeError:
+                    pass
             raise QKDClientError(f"HTTP {r.status_code} su {r.url}: {r.text}") from e
         # Prova JSON, altrimenti testo
         try:
@@ -76,12 +90,82 @@ class QKDClient:
         except json.JSONDecodeError:
             return r.text
 
-    def get(self, key_or_path: str, params: dict | None = None) -> Any:
-        url = self._url(key_or_path)
+    def get(self, key_or_path: str, params: dict | None = None, **path_kwargs) -> Any:
+        """GET generico con supporto per path variables"""
+        url = self._url(key_or_path, **path_kwargs)
         r = self._request("GET", url, params=params)
         return self._handle(r)
 
-    def post(self, key_or_path: str, data: dict | None = None) -> Any:
-        url = self._url(key_or_path)
+    def post(self, key_or_path: str, data: dict | None = None, **path_kwargs) -> Any:
+        """POST generico con supporto per path variables"""
+        url = self._url(key_or_path, **path_kwargs)
         r = self._request("POST", url, json=data or {})
         return self._handle(r)
+
+    # Metodi conformi ETSI GS QKD 014
+
+    def get_status(self, slave_id: str) -> dict:
+        """
+        GET /api/v1/keys/{slave_id}/status
+        Ottiene lo stato del link QKD con lo slave specificato.
+        """
+        return self.get("status", slave_id=slave_id)
+
+    def get_key(self, slave_id: str, 
+                number: Optional[int] = None,
+                size: Optional[int] = None,
+                additional_slave_SAE_IDs: Optional[List[str]] = None,
+                extension_mandatory: Optional[dict] = None,
+                extension_optional: Optional[dict] = None) -> dict:
+        """
+        GET /api/v1/keys/{slave_id}/enc_keys
+        Richiede chiavi crittografiche al KME per comunicare con lo slave.
+        
+        Args:
+            slave_id: ID dello slave SAE
+            number: Numero di chiavi richieste
+            size: Dimensione di ogni chiave in bit (multiplo di 8)
+            additional_slave_SAE_IDs: Lista di slave SAE ID aggiuntivi
+            extension_mandatory: Estensioni obbligatorie
+            extension_optional: Estensioni opzionali
+        """
+        # Validazione size
+        if size is not None and size % 8 != 0:
+            raise QKDClientError(f"size deve essere multiplo di 8, ricevuto: {size}")
+        
+        # Costruisci parametri query
+        params = {}
+        if number is not None:
+            params["number"] = number
+        if size is not None:
+            params["size"] = size
+        if additional_slave_SAE_IDs:
+            params["additional_slave_SAE_IDs"] = ",".join(additional_slave_SAE_IDs)
+        if extension_mandatory:
+            params["extension_mandatory"] = json.dumps(extension_mandatory)
+        if extension_optional:
+            params["extension_optional"] = json.dumps(extension_optional)
+        
+        return self.get("enc_keys", params=params if params else None, slave_id=slave_id)
+
+    def get_key_with_ids(self, master_id: str, key_IDs: List[str]) -> dict:
+        """
+        GET /api/v1/keys/{master_id}/dec_keys
+        Richiede chiavi di decrittazione usando gli ID forniti dal master.
+        
+        Args:
+            master_id: ID del master SAE
+            key_IDs: Lista di key ID da recuperare
+        
+        Supporta sia singolo key_ID che lista di key_IDs come da ETSI.
+        """
+        if not key_IDs:
+            raise QKDClientError("Almeno un key_ID è richiesto")
+        
+        # ETSI supporta sia singolo che multipli key_IDs
+        if len(key_IDs) == 1:
+            params = {"key_ID": key_IDs[0]}
+        else:
+            params = {"key_IDs": ",".join(key_IDs)}
+        
+        return self.get("dec_keys", params=params, master_id=master_id)
