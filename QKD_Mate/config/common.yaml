@@ -1,7 +1,8 @@
-# Impostazioni comuni
+# Impostazioni comuni - ETSI GS QKD 014 compliant
 timeout_sec: 10
 retries: 2
 verify_hostname: true
 api_paths:
-  status: "/api/status"
-  keys: "/api/keys"
+  status: "/api/v1/keys/{slave_id}/status"
+  enc_keys: "/api/v1/keys/{slave_id}/enc_keys"
+  dec_keys: "/api/v1/keys/{master_id}/dec_keys"
