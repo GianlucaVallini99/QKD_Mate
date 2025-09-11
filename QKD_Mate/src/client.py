@@ -38,7 +38,7 @@ class QKDClient:
             extends_path = config_path.parent / cfg["extends"]
             common = _load_yaml(extends_path)
             cfg = _merge(common, {k: v for k, v in cfg.items() if k != "extends"})
-        self.base_url: str = cfg["endpoint"].rstrip("/")
+        self.base_url: str = cfg.get("base_url", cfg.get("endpoint", "")).rstrip("/")
         self.cert = (cfg["cert"], cfg["key"])
         self.verify = cfg["ca"]  # CA file
         self.timeout = int(cfg.get("timeout_sec", 10))
@@ -69,7 +69,17 @@ class QKDClient:
         try:
             r.raise_for_status()
         except requests.HTTPError as e:
-            raise QKDClientError(f"HTTP {r.status_code} su {r.url}: {r.text}") from e
+            # Handle specific error codes as per ETSI GS QKD 014
+            if r.status_code in [400, 401, 503]:
+                try:
+                    error_data = r.json()
+                    if "message" in error_data:
+                        print(f"Error {r.status_code}: {error_data['message']}")
+                    raise QKDClientError(f"HTTP {r.status_code}: {error_data}")
+                except json.JSONDecodeError:
+                    raise QKDClientError(f"HTTP {r.status_code} su {r.url}: {r.text}") from e
+            else:
+                raise QKDClientError(f"HTTP {r.status_code} su {r.url}: {r.text}") from e
         # Prova JSON, altrimenti testo
         try:
             return r.json()
@@ -84,4 +94,90 @@ class QKDClient:
     def post(self, key_or_path: str, data: dict | None = None) -> Any:
         url = self._url(key_or_path)
         r = self._request("POST", url, json=data or {})
+        return self._handle(r)
+
+    # ETSI GS QKD 014 compliant methods
+    def get_status(self, slave_id: str) -> dict:
+        """
+        Get status of a slave SAE according to ETSI GS QKD 014.
+        
+        Args:
+            slave_id: ID of the slave SAE to query status for
+            
+        Returns:
+            dict: Status response from the QKD node
+        """
+        path = self.api_paths["status"].format(slave_id=slave_id)
+        url = f"{self.base_url}{path}"
+        r = self._request("GET", url)
+        return self._handle(r)
+    
+    def get_key(self, slave_id: str, number: int = None, size: int = None,
+                additional_slave_SAE_IDs: list[str] = None,
+                extension_mandatory: dict = None,
+                extension_optional: dict = None) -> dict:
+        """
+        Request encryption keys from slave SAE according to ETSI GS QKD 014.
+        
+        Args:
+            slave_id: ID of the slave SAE
+            number: Number of keys to request (optional)
+            size: Size of each key in bits (must be multiple of 8)
+            additional_slave_SAE_IDs: List of additional slave SAE IDs (optional)
+            extension_mandatory: Mandatory extensions (optional)
+            extension_optional: Optional extensions (optional)
+            
+        Returns:
+            dict: Response containing key_ID and other metadata
+            
+        Raises:
+            QKDClientError: If size is not multiple of 8 or other validation errors
+        """
+        # Validate size parameter
+        if size is not None and size % 8 != 0:
+            raise QKDClientError(f"Size must be multiple of 8, got {size}")
+            
+        path = self.api_paths["enc_keys"].format(slave_id=slave_id)
+        url = f"{self.base_url}{path}"
+        
+        # Build request parameters
+        params = {}
+        if number is not None:
+            params["number"] = number
+        if size is not None:
+            params["size"] = size
+        if additional_slave_SAE_IDs is not None:
+            params["additional_slave_SAE_IDs"] = additional_slave_SAE_IDs
+        if extension_mandatory is not None:
+            params["extension_mandatory"] = extension_mandatory
+        if extension_optional is not None:
+            params["extension_optional"] = extension_optional
+            
+        r = self._request("POST", url, json=params if params else {})
+        return self._handle(r)
+    
+    def get_key_with_ids(self, master_id: str, key_IDs: list[str]) -> dict:
+        """
+        Request decryption keys using specific key IDs according to ETSI GS QKD 014.
+        This method supports both single key_ID (GET) and multiple key_IDs (POST).
+        
+        Args:
+            master_id: ID of the master SAE
+            key_IDs: List of key IDs to request (can be single element)
+            
+        Returns:
+            dict: Response containing the requested keys
+        """
+        path = self.api_paths["dec_keys"].format(master_id=master_id)
+        url = f"{self.base_url}{path}"
+        
+        if len(key_IDs) == 1:
+            # Single key_ID: use GET with query parameter
+            params = {"key_ID": key_IDs[0]}
+            r = self._request("GET", url, params=params)
+        else:
+            # Multiple key_IDs: use POST with JSON body
+            data = {"key_IDs": key_IDs}
+            r = self._request("POST", url, json=data)
+            
         return self._handle(r)

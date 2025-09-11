@@ -4,10 +4,11 @@ Sistema di gestione per nodi QKD (Quantum Key Distribution) che permette di moni
 
 ## 🔐 Panoramica
 
-QKD_Mate è un client Python progettato per interfacciarsi con dispositivi QKD in ambienti di produzione. Fornisce un'interfaccia unificata per:
+QKD_Mate è un client Python progettato per interfacciarsi con dispositivi QKD in ambienti di produzione, conforme allo standard **ETSI GS QKD 014**. Fornisce un'interfaccia unificata per:
 - Verificare lo stato dei nodi quantistici
 - Monitorare continuamente la disponibilità dei nodi
-- Richiedere chiavi quantistiche sicure
+- Richiedere chiavi quantistiche sicure tramite API conformi ETSI
+- Supportare il flusso master/slave per la distribuzione delle chiavi
 - Eseguire diagnostica di rete e certificati
 
 ## 🏗️ Architettura
@@ -28,6 +29,57 @@ Ogni dispositivo esegue una propria istanza del software configurata per il nodo
 │   Device Bob    │ ◄──────────────────────────► │    Nodo Bob     │
 │  (QKD_Mate)     │         Port 443             │  78.40.171.144  │
 └─────────────────┘                              └─────────────────┘
+```
+
+## 🌐 Endpoint API ETSI GS QKD 014
+
+Il sistema implementa i seguenti endpoint conformi allo standard ETSI GS QKD 014:
+
+### Status Endpoint
+```
+GET /api/v1/keys/{slave_id}/status
+```
+Verifica lo stato di un SAE slave.
+
+### Encryption Keys Endpoint  
+```
+POST /api/v1/keys/{slave_id}/enc_keys
+```
+Richiede chiavi di crittografia da un SAE slave (modalità master).
+
+### Decryption Keys Endpoint
+```
+GET /api/v1/keys/{master_id}/dec_keys?key_ID={key_id}
+POST /api/v1/keys/{master_id}/dec_keys
+```
+Richiede chiavi di decrittografia usando key_ID specifici (modalità slave).
+
+### Esempi curl
+
+#### 1. Verificare lo stato di Alice (Bob → Alice)
+```bash
+curl -X GET "https://78.40.171.143:443/api/v1/keys/Alice2/status" \
+  --cert certs/client_Bob2.crt \
+  --key certs/client_Bob2.key \
+  --cacert certs/ca.crt
+```
+
+#### 2. Richiedere chiave da Bob (Alice → Bob)
+```bash
+curl -X POST "https://78.40.171.144:443/api/v1/keys/Bob2/enc_keys" \
+  --cert certs/client_Alice2.crt \
+  --key certs/client_Alice2.key \
+  --cacert certs/ca.crt \
+  --header "Content-Type: application/json" \
+  --data '{"number": 1, "size": 256}'
+```
+
+#### 3. Recuperare chiave con key_ID (Bob → Alice)
+```bash
+curl -X GET "https://78.40.171.143:443/api/v1/keys/Alice2/dec_keys?key_ID=abc123" \
+  --cert certs/client_Bob2.crt \
+  --key certs/client_Bob2.key \
+  --cacert certs/ca.crt
 ```
 
 ## 📋 Prerequisiti
@@ -95,6 +147,53 @@ NODE_TYPE = "alice"  # o "bob" per l'altro dispositivo
 ```
 
 ## 🔧 Utilizzo
+
+### API Python ETSI GS QKD 014
+
+Il client fornisce i seguenti metodi conformi allo standard ETSI:
+
+#### `get_status(slave_id: str) -> dict`
+Verifica lo stato di un SAE slave.
+```python
+from src.alice_client import alice_client
+
+client = alice_client()
+status = client.get_status("Bob2")  # Alice verifica lo stato di Bob
+print(status)
+```
+
+#### `get_key(slave_id, number=None, size=None, ...) -> dict`
+Richiede chiavi di crittografia da un SAE slave (modalità master).
+```python
+from src.alice_client import alice_client
+
+client = alice_client()
+response = client.get_key("Bob2", number=1, size=256)
+key_id = response["key_ID"]  # Salva il key_ID per Bob
+print(f"Key ID: {key_id}")
+```
+
+#### `get_key_with_ids(master_id: str, key_IDs: list[str]) -> dict`
+Richiede chiavi di decrittografia usando key_ID specifici (modalità slave).
+```python
+from src.bob_client import bob_client
+
+client = bob_client()
+keys = client.get_key_with_ids("Alice2", [key_id])  # Bob recupera la chiave
+print(keys)
+```
+
+### Flusso Master/Slave Completo
+```python
+# Step 1: Alice (master) richiede chiave da Bob (slave)
+alice = alice_client()
+resp = alice.get_key("Bob2", number=1, size=256)
+key_id = resp["key_ID"]
+
+# Step 2: Bob (slave) recupera la chiave usando key_ID
+bob = bob_client()
+key_data = bob.get_key_with_ids("Alice2", [key_id])
+```
 
 ### Modalità Interattiva
 
@@ -200,10 +299,10 @@ QKD_Mate/
 │   ├── bob_client.py      # Client specifico Bob
 │   └── utils.py           # Utility functions
 │
-├── examples/              # Script di esempio
-│   ├── get_status_alice.py
-│   ├── get_status_bob.py
-│   └── fetch_keys.py
+├── examples/              # Script di esempio ETSI GS QKD 014
+│   ├── get_status_alice.py    # Bob verifica stato di Alice
+│   ├── get_status_bob.py      # Alice verifica stato di Bob  
+│   └── fetch_keys.py          # Flusso completo master/slave
 │
 └── certs/                 # Certificati (non in git)
     ├── ca.crt
@@ -292,6 +391,22 @@ Il sistema traccia:
 - Richiede certificati X.509 validi
 - Opera solo su porta 443
 - Un dispositivo può gestire solo un nodo alla volta
+- Conforme allo standard ETSI GS QKD 014 v1.1.1
+
+## 📜 Standard ETSI GS QKD 014
+
+Questo progetto implementa le specifiche del documento **ETSI GS QKD 014 v1.1.1 "Quantum Key Distribution (QKD); Protocol and data format of REST-based key delivery API"**.
+
+### Caratteristiche Implementate:
+- ✅ Endpoint `/api/v1/keys/{slave_id}/status` per verifica stato
+- ✅ Endpoint `/api/v1/keys/{slave_id}/enc_keys` per richiesta chiavi master
+- ✅ Endpoint `/api/v1/keys/{master_id}/dec_keys` per recupero chiavi slave
+- ✅ Supporto parametri `number`, `size`, `additional_slave_SAE_IDs`
+- ✅ Supporto estensioni `extension_mandatory` e `extension_optional`
+- ✅ Gestione errori HTTP 400/401/503 con messaggi JSON
+- ✅ Validazione `size` multiplo di 8
+- ✅ Supporto sia GET (singolo key_ID) che POST (multipli key_IDs)
+- ✅ Autenticazione mTLS conforme agli standard di sicurezza
 
 ## 🤝 Contribuire
 
