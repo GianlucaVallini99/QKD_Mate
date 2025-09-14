@@ -1,25 +1,52 @@
 #!/usr/bin/env python3
 """
-Gestore Nodo QKD - Script unificato configurabile per Alice o Bob
+Gestore Nodo QKD - Script Unificato per Gestione Nodi Quantistici
+================================================================
 
-CONFIGURAZIONE:
-Puoi configurare il nodo in due modi:
-1. Modifica la variabile NODE_TYPE in questo file
-2. Usa il file node_config.yaml (se presente)
+Questo script fornisce un'interfaccia unificata per gestire nodi QKD
+(Alice o Bob) con funzionalità complete di monitoraggio, diagnostica
+e gestione delle chiavi quantistiche.
 
-Il file node_config.yaml ha precedenza sulla configurazione inline.
+Caratteristiche principali:
+- Configurabile per gestire sia Alice (master) che Bob (slave)
+- Interfaccia a menu interattiva o comandi diretti
+- Monitoraggio continuo con statistiche real-time
+- Diagnostica completa di rete e certificati
+- Gestione robusta degli errori
+- Deploy su dispositivi separati
+
+MODALITÀ DI CONFIGURAZIONE:
+1. Configurazione inline: Modifica NODE_TYPE in questo file
+2. File di configurazione: Usa node_config.yaml (RACCOMANDATO)
+   - Permette configurazione senza modificare il codice
+   - Facilita deployment su dispositivi diversi
+   - Il file YAML ha sempre precedenza sulla configurazione inline
+
+USO TIPICO:
+- Dispositivo Alice: NODE_TYPE = "alice" + certificati Alice
+- Dispositivo Bob: NODE_TYPE = "bob" + certificati Bob
+- Ogni dispositivo gestisce un solo nodo per sicurezza
+
+CONFORMITÀ ETSI GS QKD 014:
+- Implementa tutti gli endpoint standard
+- Gestione errori secondo specifiche
+- Validazione parametri conforme
+- Supporto per funzionalità avanzate
 """
 
-import sys
-import time
-import os
-from datetime import datetime
+# Import delle librerie standard
+import sys          # Gestione argomenti comando e uscite
+import time         # Gestione temporizzazioni e sleep
+import os           # Operazioni filesystem e comandi sistema
+from datetime import datetime  # Timestamp per logging e diagnostica
 
-# ==========================================
-# CONFIGURAZIONE - MODIFICA QUESTA SEZIONE
-# ==========================================
+# ===============================================================
+# CONFIGURAZIONE PRINCIPALE - MODIFICA QUESTA SEZIONE SE NECESSARIO
+# ===============================================================
+# Tipo di nodo da gestire: "alice" (master) o "bob" (slave)
+# Questa configurazione viene sovrascritta da node_config.yaml se presente
 NODE_TYPE = "alice"  # Cambia in "bob" per gestire il nodo Bob
-# ==========================================
+# ===============================================================
 
 # Carica configurazione da file YAML se presente
 try:
