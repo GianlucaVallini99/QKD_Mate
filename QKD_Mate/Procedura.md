@@ -112,8 +112,10 @@ Internet
 
 ### 3.1 Preparazione Sistema Alice
 
+#### 🐧 Linux (Ubuntu/Debian)
+
 ```bash
-# ===== DISPOSITIVO ALICE =====
+# ===== DISPOSITIVO ALICE - LINUX =====
 
 # 1. Aggiornamento sistema
 sudo apt update && sudo apt upgrade -y
@@ -134,10 +136,69 @@ sudo ufw allow out 443/tcp  # Per comunicazioni con KME
 sudo ufw --force enable
 ```
 
-### 3.2 Preparazione Sistema Bob
+#### 🪟 Windows 10/11
+
+```powershell
+# ===== DISPOSITIVO ALICE - WINDOWS =====
+
+# 1. Installazione Python 3.10+ (se non già presente)
+# Scaricare da https://www.python.org/downloads/windows/
+# Assicurarsi di spuntare "Add Python to PATH" durante l'installazione
+
+# 2. Verifica installazione Python
+python --version
+pip --version
+
+# 3. Installazione Git (se necessario)
+# Scaricare da https://git-scm.com/download/win
+
+# 4. Configurazione Windows Defender Firewall
+# Aprire Windows Defender Firewall con sicurezza avanzata
+# Creare regola in uscita per porta 443 (HTTPS)
+New-NetFirewallRule -DisplayName "QKD HTTPS Out" -Direction Outbound -Protocol TCP -LocalPort 443 -Action Allow
+
+# 5. Installazione OpenSSL (opzionale, per test certificati)
+# Scaricare da https://slproweb.com/products/Win32OpenSSL.html
+# Oppure usare tramite Git Bash che include OpenSSL
+
+# 6. Creazione directory di lavoro
+mkdir C:\QKD_Mate
+cd C:\QKD_Mate
+```
+
+#### 🍎 macOS
 
 ```bash
-# ===== DISPOSITIVO BOB =====
+# ===== DISPOSITIVO ALICE - macOS =====
+
+# 1. Installazione Homebrew (se non già presente)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2. Installazione Python 3.10+ (se non già presente)
+brew install python@3.10
+
+# 3. Installazione tools di rete
+brew install curl netcat openssl
+
+# 4. Verifica installazione
+python3 --version
+pip3 --version
+
+# 5. Configurazione firewall (opzionale)
+# Su macOS il firewall è gestito tramite Preferenze di Sistema > Sicurezza e Privacy > Firewall
+# Permettere connessioni in uscita per Python
+
+# 6. Creazione directory di lavoro
+sudo mkdir -p /opt/QKD_Mate
+sudo chown $(whoami):staff /opt/QKD_Mate
+```
+
+### 3.2 Preparazione Sistema Bob
+
+#### 🐧 Linux (Ubuntu/Debian)
+
+```bash
+# ===== DISPOSITIVO BOB - LINUX =====
 
 # 1. Aggiornamento sistema
 sudo apt update && sudo apt upgrade -y
@@ -158,15 +219,62 @@ sudo ufw allow out 443/tcp  # Per comunicazioni con KME
 sudo ufw --force enable
 ```
 
+#### 🪟 Windows 10/11
+
+```powershell
+# ===== DISPOSITIVO BOB - WINDOWS =====
+
+# 1. Installazione Python 3.10+ (se non già presente)
+# Scaricare da https://www.python.org/downloads/windows/
+# Assicurarsi di spuntare "Add Python to PATH" durante l'installazione
+
+# 2. Verifica installazione Python
+python --version
+pip --version
+
+# 3. Installazione Git (se necessario)
+# Scaricare da https://git-scm.com/download/win
+
+# 4. Configurazione Windows Defender Firewall
+New-NetFirewallRule -DisplayName "QKD HTTPS Out" -Direction Outbound -Protocol TCP -LocalPort 443 -Action Allow
+
+# 5. Creazione directory di lavoro
+mkdir C:\QKD_Mate
+cd C:\QKD_Mate
+```
+
+#### 🍎 macOS
+
+```bash
+# ===== DISPOSITIVO BOB - macOS =====
+
+# 1. Installazione Homebrew (se non già presente)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2. Installazione Python 3.10+
+brew install python@3.10
+
+# 3. Installazione tools di rete
+brew install curl netcat openssl
+
+# 4. Verifica installazione
+python3 --version
+pip3 --version
+
+# 5. Creazione directory di lavoro
+sudo mkdir -p /opt/QKD_Mate
+sudo chown $(whoami):staff /opt/QKD_Mate
+```
+
 ### 3.3 Download e Setup QKD_Mate
 
-**Su entrambi i dispositivi:**
+#### 🐧 Linux & 🍎 macOS
 
 ```bash
 # 1. Download del progetto
-cd /opt
+cd /opt  # Su macOS: cd /opt
 sudo git clone https://github.com/[your-repo]/QKD_Mate.git
-sudo chown -R $USER:$USER QKD_Mate
+sudo chown -R $USER:$USER QKD_Mate  # Su macOS: sudo chown -R $(whoami):staff QKD_Mate
 cd QKD_Mate
 
 # 2. Creazione ambiente virtuale Python
@@ -185,14 +293,60 @@ mkdir -p certs
 chmod 700 certs  # Solo proprietario può accedere
 ```
 
+#### 🪟 Windows
+
+```powershell
+# 1. Download del progetto
+cd C:\
+git clone https://github.com/[your-repo]/QKD_Mate.git
+cd QKD_Mate
+
+# 2. Creazione ambiente virtuale Python
+python -m venv venv
+venv\Scripts\activate
+
+# 3. Installazione dipendenze
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# 4. Verifica installazione
+python -c "import requests, yaml; print('✓ Dipendenze installate correttamente')"
+
+# 5. Creazione directory certificati
+mkdir certs
+# Su Windows, i permessi sono gestiti tramite proprietà cartella
+# Tasto destro su cartella certs > Proprietà > Sicurezza > Avanzate
+# Rimuovere tutti gli utenti eccetto il proprietario
+```
+
+#### 📝 Note Cross-Platform
+
+**Percorsi predefiniti:**
+- **Linux/macOS**: `/opt/QKD_Mate`
+- **Windows**: `C:\QKD_Mate`
+
+**Attivazione ambiente virtuale:**
+- **Linux/macOS**: `source venv/bin/activate`
+- **Windows**: `venv\Scripts\activate`
+
+**Comando Python:**
+- **Linux/macOS**: `python3` (o `python` se alias configurato)
+- **Windows**: `python`
+
+**Gestione certificati:**
+- **Linux/macOS**: Usare `chmod` per permessi
+- **Windows**: Usare Proprietà > Sicurezza per ACL
+
 ---
 
 ## 4. 🔑 Deployment Alice (Master)
 
 ### 4.1 Configurazione Certificati Alice
 
+#### 🐧 Linux & 🍎 macOS
+
 ```bash
-# ===== SU DISPOSITIVO ALICE =====
+# ===== SU DISPOSITIVO ALICE - LINUX/macOS =====
 cd /opt/QKD_Mate
 
 # 1. Copia certificati Alice (ricevuti dall'amministratore KME)
@@ -202,7 +356,7 @@ sudo cp /path/to/received/client_Alice2.crt certs/
 sudo cp /path/to/received/client_Alice2.key certs/
 
 # 2. Impostazione permessi sicuri
-sudo chown $USER:$USER certs/*
+sudo chown $USER:$USER certs/*  # macOS: sudo chown $(whoami):staff certs/*
 chmod 644 certs/ca.crt
 chmod 644 certs/client_Alice2.crt
 chmod 600 certs/client_Alice2.key  # CRITICO: solo proprietario
@@ -213,6 +367,40 @@ openssl x509 -in certs/ca.crt -text -noout | grep "Subject:"
 
 # 4. Test validità certificati
 openssl verify -CAfile certs/ca.crt certs/client_Alice2.crt
+```
+
+#### 🪟 Windows
+
+```powershell
+# ===== SU DISPOSITIVO ALICE - WINDOWS =====
+cd C:\QKD_Mate
+
+# 1. Copia certificati Alice (ricevuti dall'amministratore KME)
+# IMPORTANTE: Sostituisci con i tuoi certificati reali
+copy "C:\path\to\received\ca.crt" certs\
+copy "C:\path\to\received\client_Alice2.crt" certs\
+copy "C:\path\to\received\client_Alice2.key" certs\
+
+# 2. Impostazione permessi sicuri (tramite PowerShell con ACL)
+# Rimuovi accesso per tutti gli utenti eccetto il proprietario
+$acl = Get-Acl "certs\client_Alice2.key"
+$acl.SetAccessRuleProtection($true, $false)
+$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($env:USERNAME, "FullControl", "Allow")
+$acl.SetAccessRule($accessRule)
+Set-Acl "certs\client_Alice2.key" $acl
+
+# 3. Verifica certificati (se OpenSSL installato)
+# Tramite Git Bash o OpenSSL per Windows:
+openssl x509 -in certs/client_Alice2.crt -text -noout | findstr "Subject:"
+openssl x509 -in certs/ca.crt -text -noout | findstr "Subject:"
+
+# 4. Test validità certificati
+openssl verify -CAfile certs/ca.crt certs/client_Alice2.crt
+
+# Alternative: Verifica tramite PowerShell (senza OpenSSL)
+$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("certs\client_Alice2.crt")
+$cert.Subject
+$cert.NotAfter  # Data scadenza
 ```
 
 ### 4.2 Configurazione Node Manager per Alice
@@ -240,6 +428,8 @@ python qkd_node_manager.py --help
 
 ### 4.3 Test Connettività Alice
 
+#### 🐧 Linux & 🍎 macOS
+
 ```bash
 # 1. Test connessione di rete al KME
 ping -c 3 78.40.171.143
@@ -249,6 +439,35 @@ nc -zv 78.40.171.143 443
 
 # 3. Test SSL handshake base
 echo | openssl s_client -connect 78.40.171.143:443 -verify_return_error
+
+# 4. Test completo con QKD_Mate
+python3 qkd_node_manager.py diagnostic
+
+# 5. Test status link
+python3 qkd_node_manager.py status
+```
+
+#### 🪟 Windows
+
+```powershell
+# 1. Test connessione di rete al KME
+ping -n 3 78.40.171.143
+
+# 2. Test porta 443
+# PowerShell equivalente di netcat:
+Test-NetConnection -ComputerName 78.40.171.143 -Port 443
+
+# 3. Test SSL handshake base (se OpenSSL installato)
+echo | openssl s_client -connect 78.40.171.143:443 -verify_return_error
+
+# Alternative PowerShell per test SSL:
+$tcpClient = New-Object System.Net.Sockets.TcpClient
+$tcpClient.Connect("78.40.171.143", 443)
+$sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream())
+$sslStream.AuthenticateAsClient("78.40.171.143")
+Write-Host "SSL connection successful"
+$sslStream.Close()
+$tcpClient.Close()
 
 # 4. Test completo con QKD_Mate
 python qkd_node_manager.py diagnostic
@@ -263,8 +482,10 @@ python qkd_node_manager.py status
 
 ### 5.1 Configurazione Certificati Bob
 
+#### 🐧 Linux & 🍎 macOS
+
 ```bash
-# ===== SU DISPOSITIVO BOB =====
+# ===== SU DISPOSITIVO BOB - LINUX/macOS =====
 cd /opt/QKD_Mate
 
 # 1. Copia certificati Bob (ricevuti dall'amministratore KME)
@@ -273,7 +494,7 @@ sudo cp /path/to/received/client_Bob2.crt certs/
 sudo cp /path/to/received/client_Bob2.key certs/
 
 # 2. Impostazione permessi sicuri
-sudo chown $USER:$USER certs/*
+sudo chown $USER:$USER certs/*  # macOS: sudo chown $(whoami):staff certs/*
 chmod 644 certs/ca.crt
 chmod 644 certs/client_Bob2.crt
 chmod 600 certs/client_Bob2.key  # CRITICO: solo proprietario
@@ -281,6 +502,35 @@ chmod 600 certs/client_Bob2.key  # CRITICO: solo proprietario
 # 3. Verifica certificati
 openssl x509 -in certs/client_Bob2.crt -text -noout | grep "Subject:"
 openssl verify -CAfile certs/ca.crt certs/client_Bob2.crt
+```
+
+#### 🪟 Windows
+
+```powershell
+# ===== SU DISPOSITIVO BOB - WINDOWS =====
+cd C:\QKD_Mate
+
+# 1. Copia certificati Bob (ricevuti dall'amministratore KME)
+copy "C:\path\to\received\ca.crt" certs\
+copy "C:\path\to\received\client_Bob2.crt" certs\
+copy "C:\path\to\received\client_Bob2.key" certs\
+
+# 2. Impostazione permessi sicuri (tramite PowerShell con ACL)
+$acl = Get-Acl "certs\client_Bob2.key"
+$acl.SetAccessRuleProtection($true, $false)
+$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($env:USERNAME, "FullControl", "Allow")
+$acl.SetAccessRule($accessRule)
+Set-Acl "certs\client_Bob2.key" $acl
+
+# 3. Verifica certificati
+# Tramite Git Bash o OpenSSL per Windows:
+openssl x509 -in certs/client_Bob2.crt -text -noout | findstr "Subject:"
+openssl verify -CAfile certs/ca.crt certs/client_Bob2.crt
+
+# Alternative PowerShell:
+$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("certs\client_Bob2.crt")
+$cert.Subject
+$cert.NotAfter
 ```
 
 ### 5.2 Configurazione Node Manager per Bob
@@ -305,12 +555,30 @@ EOF
 
 ### 5.3 Test Connettività Bob
 
+#### 🐧 Linux & 🍎 macOS
+
 ```bash
 # 1. Test connessione di rete al KME
 ping -c 3 78.40.171.144
 
 # 2. Test porta 443
 nc -zv 78.40.171.144 443
+
+# 3. Test completo con QKD_Mate
+python3 qkd_node_manager.py diagnostic
+
+# 4. Test status link con Alice
+python3 qkd_node_manager.py status
+```
+
+#### 🪟 Windows
+
+```powershell
+# 1. Test connessione di rete al KME
+ping -n 3 78.40.171.144
+
+# 2. Test porta 443
+Test-NetConnection -ComputerName 78.40.171.144 -Port 443
 
 # 3. Test completo con QKD_Mate
 python qkd_node_manager.py diagnostic
@@ -1400,7 +1668,9 @@ if __name__ == "__main__":
 }
 ```
 
-### 9.3 Servizio Systemd per Monitoraggio
+### 9.3 Servizio di Sistema per Monitoraggio
+
+#### 🐧 Linux - Servizio Systemd
 
 **File: `/etc/systemd/system/qkd-monitoring-alice.service`**
 ```ini
@@ -1431,7 +1701,7 @@ ReadWritePaths=/opt/QKD_Mate
 WantedBy=multi-user.target
 ```
 
-**Attivazione servizio:**
+**Attivazione servizio Linux:**
 ```bash
 # Copia file servizio
 sudo cp qkd-monitoring-alice.service /etc/systemd/system/
@@ -1448,6 +1718,125 @@ sudo systemctl status qkd-monitoring-alice
 
 # Visualizza log
 sudo journalctl -u qkd-monitoring-alice -f
+```
+
+#### 🪟 Windows - Servizio Windows
+
+**File: `install_windows_service.ps1`**
+```powershell
+# Script per installare servizio Windows QKD Monitoring
+# Richiede privilegi amministratore
+
+# Installa NSSM (Non-Sucking Service Manager)
+# Scarica da: https://nssm.cc/download
+# Oppure: choco install nssm
+
+# Configura servizio
+$serviceName = "QKDMonitoringAlice"
+$pythonExe = "C:\QKD_Mate\venv\Scripts\python.exe"
+$scriptPath = "C:\QKD_Mate\monitoring_service.py"
+$workingDir = "C:\QKD_Mate"
+
+# Installa servizio
+nssm install $serviceName $pythonExe "$scriptPath alice"
+nssm set $serviceName AppDirectory $workingDir
+nssm set $serviceName DisplayName "QKD Monitoring Service - Alice"
+nssm set $serviceName Description "Servizio di monitoraggio per nodo QKD Alice"
+nssm set $serviceName Start SERVICE_AUTO_START
+
+# Configura log
+nssm set $serviceName AppStdout "$workingDir\logs\service_stdout.log"
+nssm set $serviceName AppStderr "$workingDir\logs\service_stderr.log"
+nssm set $serviceName AppRotateFiles 1
+nssm set $serviceName AppRotateOnline 1
+nssm set $serviceName AppRotateSeconds 86400
+nssm set $serviceName AppRotateBytes 1048576
+
+# Avvia servizio
+Start-Service $serviceName
+
+Write-Host "Servizio QKD Monitoring installato e avviato"
+Write-Host "Controlla stato con: Get-Service $serviceName"
+```
+
+**Gestione servizio Windows:**
+```powershell
+# Verifica stato
+Get-Service QKDMonitoringAlice
+
+# Avvia/ferma servizio
+Start-Service QKDMonitoringAlice
+Stop-Service QKDMonitoringAlice
+
+# Rimuovi servizio (se necessario)
+Stop-Service QKDMonitoringAlice
+nssm remove QKDMonitoringAlice confirm
+```
+
+#### 🍎 macOS - LaunchDaemon
+
+**File: `/Library/LaunchDaemons/com.qkd.monitoring.alice.plist`**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.qkd.monitoring.alice</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/QKD_Mate/venv/bin/python</string>
+        <string>/opt/QKD_Mate/monitoring_service.py</string>
+        <string>alice</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>/opt/QKD_Mate</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <true/>
+    
+    <key>StandardOutPath</key>
+    <string>/opt/QKD_Mate/logs/monitoring_alice.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/opt/QKD_Mate/logs/monitoring_alice_error.log</string>
+    
+    <key>UserName</key>
+    <string>_qkd</string>
+    
+    <key>GroupName</key>
+    <string>_qkd</string>
+</dict>
+</plist>
+```
+
+**Gestione LaunchDaemon macOS:**
+```bash
+# Crea utente dedicato (opzionale)
+sudo dscl . -create /Users/_qkd
+sudo dscl . -create /Users/_qkd UserShell /usr/bin/false
+sudo dscl . -create /Users/_qkd RealName "QKD Service User"
+sudo dscl . -create /Users/_qkd UniqueID 501
+sudo dscl . -create /Users/_qkd PrimaryGroupID 20
+
+# Crea directory log
+sudo mkdir -p /opt/QKD_Mate/logs
+sudo chown _qkd:_qkd /opt/QKD_Mate/logs
+
+# Installa e avvia servizio
+sudo cp com.qkd.monitoring.alice.plist /Library/LaunchDaemons/
+sudo launchctl load /Library/LaunchDaemons/com.qkd.monitoring.alice.plist
+
+# Verifica stato
+sudo launchctl list | grep qkd
+
+# Ferma servizio
+sudo launchctl unload /Library/LaunchDaemons/com.qkd.monitoring.alice.plist
 ```
 
 ---
@@ -1502,6 +1891,8 @@ ConnectionRefusedError: [Errno 111] Connection refused
 **Diagnosi e Soluzioni:**
 
 1. **Test connettività base:**
+
+   **🐧 Linux & 🍎 macOS:**
    ```bash
    # Test ping
    ping -c 3 78.40.171.143
@@ -1513,7 +1904,24 @@ ConnectionRefusedError: [Errno 111] Connection refused
    nslookup 78.40.171.143
    ```
 
+   **🪟 Windows:**
+   ```powershell
+   # Test ping
+   ping -n 3 78.40.171.143
+   
+   # Test porta
+   Test-NetConnection -ComputerName 78.40.171.143 -Port 443
+   
+   # Test DNS
+   nslookup 78.40.171.143
+   
+   # Alternative con telnet (se abilitato)
+   telnet 78.40.171.143 443
+   ```
+
 2. **Verifica firewall:**
+
+   **🐧 Linux:**
    ```bash
    # Controlla regole locali
    sudo ufw status
@@ -1525,13 +1933,52 @@ ConnectionRefusedError: [Errno 111] Connection refused
    curl -k https://78.40.171.143:443
    ```
 
+   **🪟 Windows:**
+   ```powershell
+   # Controlla firewall Windows
+   Get-NetFirewallRule | Where-Object {$_.DisplayName -like "*QKD*"}
+   
+   # Crea regola outbound per HTTPS
+   New-NetFirewallRule -DisplayName "QKD HTTPS Out" -Direction Outbound -Protocol TCP -RemotePort 443 -Action Allow
+   
+   # Test con PowerShell
+   Invoke-WebRequest -Uri "https://78.40.171.143:443" -SkipCertificateCheck
+   ```
+
+   **🍎 macOS:**
+   ```bash
+   # Verifica stato firewall
+   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+   
+   # Permetti connessioni per Python (se necessario)
+   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/bin/python3
+   
+   # Test connessione
+   curl -k https://78.40.171.143:443
+   ```
+
 3. **Verifica routing:**
+
+   **🐧 Linux & 🍎 macOS:**
    ```bash
    # Traceroute al KME
    traceroute 78.40.171.143
    
    # Verifica gateway
-   ip route show
+   ip route show  # Linux
+   netstat -rn    # macOS
+   ```
+
+   **🪟 Windows:**
+   ```powershell
+   # Traceroute al KME
+   tracert 78.40.171.143
+   
+   # Verifica routing table
+   route print
+   
+   # Informazioni interfacce di rete
+   ipconfig /all
    ```
 
 #### 🔐 Errore: HTTP 401 Unauthorized
@@ -1595,6 +2042,105 @@ HTTP 400: Key ID not found
 3. **Timeout key_ID:**
    - I key_ID possono scadere
    - Usare chiavi entro timeframe specificato
+
+#### 🖥️ Problemi Specifici per Piattaforma
+
+**🪟 Windows Specifici:**
+
+1. **Errore: 'python' non riconosciuto:**
+   ```powershell
+   # Verifica installazione Python
+   where python
+   
+   # Se non trovato, aggiungi Python al PATH
+   # Oppure usa py launcher
+   py -3 qkd_node_manager.py
+   ```
+
+2. **Errore permessi certificati:**
+   ```powershell
+   # Verifica proprietario file
+   Get-Acl "certs\client_Alice2.key" | Format-List
+   
+   # Reset permessi se necessario
+   icacls "certs\client_Alice2.key" /reset
+   icacls "certs\client_Alice2.key" /grant:r "$env:USERNAME:(F)" /inheritance:r
+   ```
+
+3. **Errore SSL con PowerShell:**
+   ```powershell
+   # Forza TLS 1.2
+   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+   
+   # Test connessione SSL
+   $cert = [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+   Invoke-WebRequest -Uri "https://78.40.171.143:443"
+   ```
+
+**🍎 macOS Specifici:**
+
+1. **Errore certificati Keychain:**
+   ```bash
+   # Verifica certificati in Keychain
+   security find-certificate -a -c "client_Alice2"
+   
+   # Importa certificato se necessario (solo per test)
+   security add-certificates certs/client_Alice2.crt
+   ```
+
+2. **Errore permessi con SIP (System Integrity Protection):**
+   ```bash
+   # Usa directory utente invece di /opt se problemi
+   mkdir -p ~/QKD_Mate
+   cd ~/QKD_Mate
+   
+   # Oppure disabilita SIP temporaneamente (sconsigliato in produzione)
+   ```
+
+3. **Errore Python versioni multiple:**
+   ```bash
+   # Verifica versioni Python disponibili
+   ls -la /usr/bin/python*
+   
+   # Usa versione specifica
+   python3.10 qkd_node_manager.py
+   
+   # Oppure crea alias
+   alias python=python3.10
+   ```
+
+4. **Errore network tools mancanti:**
+   ```bash
+   # Installa network tools se mancanti
+   brew install netcat
+   brew install nmap  # Per test avanzati
+   
+   # Alternative native macOS
+   nc -z 78.40.171.143 443  # invece di nc -zv
+   ```
+
+**Cross-Platform - Errori Ambiente Virtuale:**
+
+1. **Ambiente virtuale non attivato:**
+   ```bash
+   # Linux/macOS
+   source venv/bin/activate
+   which python  # Dovrebbe mostrare path in venv
+   
+   # Windows
+   venv\Scripts\activate
+   where python  # Dovrebbe mostrare path in venv
+   ```
+
+2. **Dipendenze mancanti dopo aggiornamento:**
+   ```bash
+   # Reinstalla dipendenze
+   pip install --force-reinstall -r requirements.txt
+   
+   # Verifica versioni
+   pip list | grep requests
+   pip list | grep yaml
+   ```
 
 ### 10.2 Script di Diagnostica Avanzata
 
@@ -2206,19 +2752,40 @@ echo "🔍 Verifica funzionamento con: python qkd_node_manager.py diagnostic"
 
 ## 🎯 Conclusione
 
-Questa procedura fornisce una guida completa per implementare un sistema di comunicazione quantisticamente sicuro utilizzando QKD_Mate. L'integrazione in applicazioni reali richiede:
+Questa procedura fornisce una guida completa per implementare un sistema di comunicazione quantisticamente sicuro utilizzando QKD_Mate su **Linux, Windows e macOS**. L'integrazione in applicazioni reali richiede:
 
 1. **Pianificazione accurata** dell'architettura di rete
-2. **Implementazione graduale** con test approfonditi
+2. **Implementazione graduale** con test approfonditi  
 3. **Monitoraggio continuo** per garantire disponibilità
 4. **Sicurezza a più livelli** per proteggere l'infrastruttura
 5. **Procedure operative** ben definite per manutenzione
 
-La tecnologia QKD offre sicurezza teoricamente assoluta, ma richiede implementazione e gestione professionale per realizzare il suo pieno potenziale in ambienti produttivi.
+### 📋 Riepilogo Cross-Platform
+
+| Aspetto | 🐧 Linux | 🪟 Windows | 🍎 macOS |
+|---------|----------|------------|----------|
+| **Directory di lavoro** | `/opt/QKD_Mate` | `C:\QKD_Mate` | `/opt/QKD_Mate` |
+| **Ambiente virtuale** | `source venv/bin/activate` | `venv\Scripts\activate` | `source venv/bin/activate` |
+| **Comando Python** | `python3` | `python` | `python3` |
+| **Gestione permessi** | `chmod/chown` | ACL/PowerShell | `chmod/chown` |
+| **Firewall** | `ufw` | Windows Defender | Preferenze Sistema |
+| **Servizio sistema** | systemd | NSSM/Windows Service | LaunchDaemon |
+| **Test rete** | `nc/ping -c` | `Test-NetConnection/ping -n` | `nc/ping -c` |
+| **Package manager** | `apt` | Chocolatey/Manual | Homebrew |
+
+### 🚀 Vantaggi Multi-Piattaforma
+
+- **Flessibilità**: Deploy su qualsiasi sistema operativo
+- **Compatibilità**: Stesso codice Python su tutte le piattaforme  
+- **Manutenzione**: Procedure unificate con adattamenti specifici
+- **Scalabilità**: Supporto per ambienti misti Linux/Windows/macOS
+- **Testing**: Possibilità di test cross-platform
+
+La tecnologia QKD offre sicurezza teoricamente assoluta, ora disponibile su tutti i principali sistemi operativi con implementazione e gestione professionale per realizzare il suo pieno potenziale in ambienti produttivi eterogenei.
 
 **Per supporto tecnico e domande:**
 - Consultare la documentazione nel repository
-- Utilizzare gli script di diagnostica forniti
-- Contattare il team di sviluppo per problemi complessi
+- Utilizzare gli script di diagnostica forniti (ora cross-platform)
+- Contattare il team di sviluppo per problemi specifici della piattaforma
 
-🔐 **La crittografia quantistica è il futuro della sicurezza delle comunicazioni!**
+🔐 **La crittografia quantistica è il futuro della sicurezza delle comunicazioni - ora su Linux, Windows e macOS!**
