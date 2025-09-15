@@ -1,0 +1,77 @@
+🆘 ERRORI COMUNI E COME RISOLVERLI
+
+================================================================================
+❌ ERRORE: "command not found"
+================================================================================
+SIGNIFICA: Il computer non sa cosa significa quel comando
+SOLUZIONE: 
+- Controlla di aver scritto il comando correttamente
+- Controlla di non aver dimenticato spazi o caratteri
+
+================================================================================
+❌ ERRORE: "permission denied" 
+================================================================================
+SIGNIFICA: Non hai i permessi per fare quella cosa
+SOLUZIONE: Aggiungi "sudo" davanti al comando
+ESEMPIO: Se "apt update" non funziona, prova "sudo apt update"
+
+================================================================================
+❌ ERRORE: "repository not found" o "fatal: could not read"
+================================================================================
+SIGNIFICA: GitHub non trova la tua repository
+SOLUZIONE: 
+- Controlla che l'URL sia corretto
+- Verifica che la repository sia pubblica
+- Assicurati di aver scritto bene username e nome repository
+
+================================================================================
+❌ ERRORE: "No such file or directory" per requirements.txt
+================================================================================
+SIGNIFICA: Non c'è il file requirements.txt nella cartella
+SOLUZIONE:
+- Controlla di essere nella cartella giusta: ls (mostra i file)
+- Se non c'è requirements.txt, salta questo passaggio
+- Oppure crea un file vuoto: touch requirements.txt
+
+================================================================================
+❌ ERRORE: "python: command not found"
+================================================================================
+SIGNIFICA: Python non è installato
+SOLUZIONE: 
+sudo apt install -y python3
+Poi usa "python3" invece di "python"
+
+================================================================================
+❌ ERRORE: "ModuleNotFoundError" quando avvii Alice
+================================================================================
+SIGNIFICA: Manca qualche pacchetto Python
+SOLUZIONE:
+1. Assicurati che l'ambiente sia attivo: source alice_ambiente/bin/activate
+2. Installa il pacchetto mancante: pip install NOME_PACCHETTO
+
+================================================================================
+❌ ALICE SI AVVIA MA NON RISPONDE
+================================================================================
+POSSIBILI CAUSE:
+- Sta ancora caricando (aspetta 1-2 minuti)
+- Manca qualche configurazione
+- Controlla se ci sono messaggi di errore nel terminale
+
+================================================================================
+❌ ANYDESK SI DISCONNETTE
+================================================================================
+SOLUZIONE:
+- Riconnettiti con lo stesso ID
+- Riapri il terminale
+- Vai nella cartella alice: cd alice-progetto/alice
+- Riattiva l'ambiente: source alice_ambiente/bin/activate
+
+================================================================================
+🔧 COMANDI UTILI PER CAPIRE DOVE SEI
+================================================================================
+
+pwd = mostra in che cartella sei
+ls = mostra i file nella cartella corrente
+cd .. = torna indietro di una cartella
+cd ~ = vai nella cartella home
+whoami = mostra il tuo nome utente

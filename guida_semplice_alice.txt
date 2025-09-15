@@ -1,0 +1,132 @@
+================================================================================
+GUIDA SEMPLICE: INSTALLARE ALICE SUL COMPUTER AZIENDALE
+================================================================================
+
+🎯 OBIETTIVO: Prendere Alice dal tuo GitHub e metterla sul computer aziendale
+
+📋 COSA TI SERVE PRIMA DI INIZIARE:
+- ID AnyDesk del computer aziendale (esempio: 123-456-789)
+- URL della tua repository GitHub (esempio: https://github.com/tuonome/alice)
+- Password del computer aziendale (se richiesta)
+
+================================================================================
+PASSO 1: CONNESSIONE ANYDESK
+================================================================================
+
+1. Apri AnyDesk sul tuo Mac
+2. Scrivi l'ID del computer aziendale (NON l'IP 162.120.187.141)
+3. Clicca "Connect"
+4. Inserisci password se richiesta
+
+✅ RISULTATO: Vedi lo schermo del computer aziendale
+
+================================================================================
+PASSO 2: APRIRE IL TERMINALE
+================================================================================
+
+Sul computer aziendale (quello che vedi tramite AnyDesk):
+
+1. Clicca sull'icona "Terminal" o cerca "terminal"
+2. Si apre una finestra nera con del testo
+3. Vedi qualcosa come: nomeutente@nomecomputer:~$
+
+✅ RISULTATO: Hai il "terminale" aperto (la console dei comandi)
+
+================================================================================
+PASSO 3: SCARICARE ALICE DA GITHUB
+================================================================================
+
+Nel terminale, copia e incolla QUESTI COMANDI (uno alla volta):
+
+🔹 COMANDO 1: Creare una cartella per Alice
+   mkdir alice-progetto
+   cd alice-progetto
+
+🔹 COMANDO 2: Scaricare Alice da GitHub
+   git clone https://github.com/TUONOME/TUAREPO.git alice
+   
+   ⚠️ SOSTITUISCI:
+   - TUONOME = il tuo username GitHub
+   - TUAREPO = il nome della tua repository Alice
+
+🔹 COMANDO 3: Entrare nella cartella Alice
+   cd alice
+
+✅ RISULTATO: Hai Alice scaricata sul computer aziendale
+
+================================================================================
+PASSO 4: INSTALLARE LE DIPENDENZE
+================================================================================
+
+Alice ha bisogno di alcuni "ingredienti" per funzionare. Installiamoli:
+
+🔹 COMANDO 1: Aggiornare il sistema
+   sudo apt update
+
+🔹 COMANDO 2: Installare Python (il linguaggio di Alice)
+   sudo apt install -y python3 python3-pip python3-venv
+
+🔹 COMANDO 3: Creare un ambiente per Alice
+   python3 -m venv alice_ambiente
+
+🔹 COMANDO 4: Attivare l'ambiente
+   source alice_ambiente/bin/activate
+
+🔹 COMANDO 5: Installare i pacchetti di Alice
+   pip install -r requirements.txt
+
+✅ RISULTATO: Alice ha tutto quello che le serve per funzionare
+
+================================================================================
+PASSO 5: AVVIARE ALICE
+================================================================================
+
+🔹 COMANDO: Avviare Alice
+   python main.py
+
+OPPURE (se il file principale è diverso):
+   python app.py
+
+✅ RISULTATO: Alice si avvia e funziona!
+
+================================================================================
+COSA SIGNIFICANO I COMANDI?
+================================================================================
+
+mkdir = "crea cartella"
+cd = "vai in questa cartella"
+git clone = "scarica da GitHub"
+sudo = "fai questo con permessi di amministratore"
+apt = "gestore programmi di Linux"
+pip = "gestore pacchetti Python"
+python = "avvia programma Python"
+
+================================================================================
+SE QUALCOSA VA STORTO
+================================================================================
+
+❌ Errore "command not found":
+   → Il comando non esiste, controlla di averlo scritto bene
+
+❌ Errore "permission denied":
+   → Aggiungi "sudo" davanti al comando
+
+❌ Errore "repository not found":
+   → Controlla che l'URL GitHub sia corretto
+
+❌ Errore "module not found":
+   → Assicurati di aver attivato l'ambiente: source alice_ambiente/bin/activate
+
+❌ Alice non si avvia:
+   → Controlla che ci sia il file main.py o app.py nella cartella
+
+================================================================================
+NUMERI DI EMERGENZA 😄
+================================================================================
+
+Se ti blocchi:
+1. Fai screenshot dell'errore
+2. Chiedi aiuto specificando:
+   - Che comando stavi eseguendo
+   - Che errore hai ricevuto
+   - In che passo ti sei bloccato

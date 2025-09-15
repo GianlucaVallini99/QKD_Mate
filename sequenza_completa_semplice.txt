@@ -1,0 +1,57 @@
+📝 SEQUENZA COMPLETA - COPIA E INCOLLA
+
+================================================================================
+PRIMA DI INIZIARE - INFORMAZIONI NECESSARIE:
+================================================================================
+
+✏️  ID AnyDesk del computer aziendale: ________________
+✏️  URL della tua repository GitHub: ________________
+✏️  Password computer aziendale (se richiesta): ________________
+
+================================================================================
+SEQUENZA COMANDI - COPIA UNO ALLA VOLTA
+================================================================================
+
+# 1. CREARE CARTELLA E SCARICARE ALICE
+mkdir alice-progetto
+cd alice-progetto
+git clone https://github.com/TUONOME/TUAREPO.git alice
+cd alice
+
+# 2. INSTALLARE PYTHON E DIPENDENZE
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv
+
+# 3. CREARE AMBIENTE ALICE
+python3 -m venv alice_ambiente
+source alice_ambiente/bin/activate
+
+# 4. INSTALLARE PACCHETTI ALICE
+pip install -r requirements.txt
+
+# 5. AVVIARE ALICE
+python main.py
+
+================================================================================
+COSA VEDRAI SE TUTTO VA BENE:
+================================================================================
+
+1. Dopo ogni comando vedrai del testo scorrere
+2. Se non ci sono errori (righe che iniziano con "ERROR"), va tutto bene
+3. Quando attivi l'ambiente vedrai "(alice_ambiente)" all'inizio della riga
+4. Quando Alice si avvia, vedrai messaggi tipo "Server running on..." o simili
+
+================================================================================
+SE TI BLOCCHI:
+================================================================================
+
+1. Fai screenshot dell'errore
+2. Annota quale comando stavi eseguendo
+3. Chiedi aiuto specificando entrambe le cose
+
+Ricorda: è normale che la prima volta sembri complicato, ma stai solo:
+1. Scaricando Alice
+2. Preparando il computer per farla funzionare  
+3. Avviandola
+
+È come installare un'app, ma manualmente! 😊
