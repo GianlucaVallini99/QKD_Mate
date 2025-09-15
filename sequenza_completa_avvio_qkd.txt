@@ -1,0 +1,154 @@
+🎯 SEQUENZA COMPLETA: DALL'AVVIO ALL'ACCESSO QKD
+
+================================================================================
+PREPARATIVI - INFORMAZIONI NECESSARIE
+================================================================================
+
+Prima di iniziare, chiedi all'IT aziendale:
+✏️  IP del server QKD: ________________
+✏️  Porta QKD (es. 9999): ________________  
+✏️  Chiave di autenticazione QKD: ________________
+✏️  File certificato (se serve): ________________
+
+================================================================================
+PASSO 1: AVVIO ALICE
+================================================================================
+
+Nel terminale del computer aziendale:
+
+# Vai nella cartella Alice
+cd ~/alice-progetto/alice
+
+# Attiva l'ambiente
+source alice_ambiente/bin/activate
+
+# Avvia Alice
+python main.py
+
+🔍 COSA ASPETTARTI:
+✅ Vedrai: "Server running on http://localhost:8080"
+✅ Vedrai: "Alice is ready!"
+❌ Se errori: controlla che tutti i pacchetti siano installati
+
+================================================================================
+PASSO 2: ACCESSO ALL'INTERFACCIA
+================================================================================
+
+# Sul computer aziendale (non sul tuo Mac!)
+1. Apri un browser (Firefox, Chrome, Safari)
+2. Vai all'indirizzo: http://localhost:8080
+3. Dovresti vedere la homepage di Alice
+
+🔍 COSA ASPETTARTI:
+✅ Interfaccia web di Alice
+✅ Menu di navigazione
+✅ Dashboard principale
+❌ Se non si apre: controlla che Alice sia ancora in esecuzione
+
+================================================================================
+PASSO 3: CONFIGURAZIONE QKD
+================================================================================
+
+Nell'interfaccia web di Alice:
+
+1. 🔍 Cerca una di queste sezioni:
+   - "Settings" / "Impostazioni"
+   - "Configuration" / "Configurazione"  
+   - "QKD Setup" / "Configurazione QKD"
+   - "Security" / "Sicurezza"
+   - Icona ingranaggio ⚙️
+
+2. 📝 Inserisci i dati QKD:
+   - QKD Server: [IP del server QKD]
+   - Port: [porta, es. 9999]
+   - Authentication Key: [la tua chiave segreta]
+   - Certificate: [carica il file certificato se richiesto]
+
+3. 💾 Salva la configurazione:
+   - Click "Save" / "Salva"
+   - Click "Apply" / "Applica"
+
+4. 🧪 Testa la connessione:
+   - Click "Test Connection" / "Testa Connessione"
+   - Dovresti vedere: "Connection: OK" ✅
+
+================================================================================
+PASSO 4: VERIFICA FUNZIONAMENTO
+================================================================================
+
+🔍 CONTROLLI DA FARE:
+
+✅ Status QKD: dovrebbe essere "Connected" o "Active"
+✅ Key Status: dovrebbe essere "Valid" o "Synchronized"  
+✅ Last Sync: dovrebbe mostrare timestamp recente
+✅ Security Level: dovrebbe essere "Quantum Safe" o simile
+
+================================================================================
+COSA FARE SE QUALCOSA NON FUNZIONA
+================================================================================
+
+❌ ALICE NON SI AVVIA:
+   - Controlla errori nel terminale
+   - Verifica che l'ambiente sia attivo: (alice_ambiente)
+   - Riprova: python app.py invece di main.py
+
+❌ INTERFACCIA WEB NON SI APRE:
+   - Controlla che Alice sia ancora in esecuzione
+   - Prova: http://127.0.0.1:8080
+   - Verifica che nessun firewall blocchi la porta 8080
+
+❌ NON TROVO SEZIONE QKD:
+   - Cerca "Advanced Settings" / "Impostazioni Avanzate"
+   - Controlla se c'è un menu "Admin" / "Amministrazione"
+   - Potrebbe essere necessario fare login come amministratore
+
+❌ CONNESSIONE QKD FALLISCE:
+   - Verifica IP e porta del server QKD
+   - Controlla che la chiave di autenticazione sia corretta
+   - Assicurati che il server QKD sia raggiungibile dalla rete aziendale
+
+================================================================================
+CONFIGURAZIONE ALTERNATIVA (se interfaccia web non funziona)
+================================================================================
+
+📁 MODIFICA FILE CONFIGURAZIONE:
+
+1. Nel terminale:
+   cd ~/alice-progetto/alice
+   ls (cerca file config.yaml, alice.conf, settings.json)
+
+2. Apri il file:
+   nano config.yaml (o il nome del file trovato)
+
+3. Cerca/aggiungi sezione QKD:
+   ```yaml
+   qkd:
+     server: "IP_DEL_SERVER_QKD"
+     port: 9999
+     auth_key: "LA_TUA_CHIAVE_SEGRETA"
+     certificate_path: "/path/to/certificate.pem"
+   ```
+
+4. Salva: Ctrl+X, poi Y, poi INVIO
+
+5. Riavvia Alice:
+   python main.py
+
+================================================================================
+RISOLUZIONE PROBLEMI COMUNI
+================================================================================
+
+🔧 "Connection Refused":
+   → IP o porta QKD sbagliati
+
+🔧 "Authentication Failed":  
+   → Chiave di autenticazione errata
+
+🔧 "Certificate Error":
+   → File certificato mancante o percorso sbagliato
+
+🔧 "Timeout":
+   → Server QKD non raggiungibile o spento
+
+🔧 "Permission Denied":
+   → Alice non ha permessi per accedere al sistema QKD

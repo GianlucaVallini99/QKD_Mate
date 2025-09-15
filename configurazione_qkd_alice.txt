@@ -1,0 +1,121 @@
+🔐 CONFIGURAZIONE CHIAVI QKD IN ALICE - GUIDA PRATICA
+
+================================================================================
+COSA SONO LE CHIAVI QKD?
+================================================================================
+
+QKD = Quantum Key Distribution (Distribuzione Quantistica delle Chiavi)
+🔹 Sono chiavi crittografiche super-sicure generate con tecnologia quantistica
+🔹 Servono per proteggere le comunicazioni da intercettazioni
+🔹 Alice le usa per crittografare/decrittografare i dati
+
+================================================================================
+DOVE INSERIRE LE CHIAVI - 3 MODALITÀ PRINCIPALI
+================================================================================
+
+🌐 MODALITÀ 1: INTERFACCIA WEB (più comune)
+   1. Apri browser: http://localhost:8080
+   2. Cerca sezione: "Configuration" o "Settings" o "QKD"
+   3. Trovi campi tipo:
+      - QKD Server Address: [inserisci IP server QKD]
+      - QKD Port: [inserisci porta, es. 9999]
+      - Authentication Key: [inserisci chiave di accesso]
+      - Certificate Path: [percorso certificato]
+
+📁 MODALITÀ 2: FILE DI CONFIGURAZIONE
+   1. Cerca file: config.yaml o alice.conf o settings.json
+   2. Apri con: nano config.yaml (o vim/gedit)
+   3. Trova sezione tipo:
+      ```
+      qkd:
+        server: "192.168.1.100"
+        port: 9999
+        auth_key: "la-tua-chiave-qui"
+        certificate: "/path/to/cert.pem"
+      ```
+
+💻 MODALITÀ 3: VARIABILI D'AMBIENTE
+   1. Nel terminale digita:
+      ```
+      export QKD_SERVER="192.168.1.100"
+      export QKD_AUTH_KEY="la-tua-chiave"
+      export QKD_CERT_PATH="/path/to/cert"
+      ```
+
+================================================================================
+INFORMAZIONI CHE TI SERVONO (chiedi all'IT aziendale)
+================================================================================
+
+✏️  IP del server QKD: ________________
+✏️  Porta QKD: ________________
+✏️  Chiave di autenticazione: ________________
+✏️  File certificato (.pem/.crt): ________________
+✏️  Username QKD (se richiesto): ________________
+✏️  Password QKD (se richiesta): ________________
+
+================================================================================
+PROCEDURA STEP-BY-STEP
+================================================================================
+
+🔹 PASSO 1: Avvia Alice
+   python main.py
+
+🔹 PASSO 2: Apri browser
+   http://localhost:8080
+
+🔹 PASSO 3: Cerca sezione configurazione
+   - "Settings" / "Configuration" / "QKD Setup"
+   - Oppure icona ingranaggio ⚙️
+
+🔹 PASSO 4: Inserisci le credenziali
+   - Server QKD
+   - Porta
+   - Chiave di autenticazione
+   - Certificati (se richiesti)
+
+🔹 PASSO 5: Salva e testa connessione
+   - Click "Save" / "Apply"
+   - Click "Test Connection"
+   - Dovresti vedere: "QKD Connection: OK" ✅
+
+================================================================================
+COSA VEDRAI SE FUNZIONA
+================================================================================
+
+✅ CONNESSIONE RIUSCITA:
+   - Status: "QKD Connected"
+   - Key Status: "Active"
+   - Last Sync: timestamp recente
+   - Security Level: "Quantum Safe"
+
+❌ PROBLEMI COMUNI:
+   - "Connection Refused" → IP o porta sbagliati
+   - "Authentication Failed" → chiave sbagliata
+   - "Certificate Error" → certificato mancante/scaduto
+   - "Timeout" → server QKD non raggiungibile
+
+================================================================================
+ALTERNATIVE SE NON TROVI L'INTERFACCIA WEB
+================================================================================
+
+📁 MODIFICA FILE DIRETTAMENTE:
+   1. cd ~/alice-progetto/alice
+   2. ls (cerca file config)
+   3. nano config.yaml (o il file trovato)
+   4. Aggiungi/modifica sezione QKD
+   5. Ctrl+X per salvare
+
+🔧 USA COMANDI ALICE (se disponibili):
+   python main.py --configure-qkd
+   python main.py --set-qkd-server IP_SERVER
+   python main.py --set-qkd-key CHIAVE
+
+================================================================================
+SICUREZZA - IMPORTANTE! ⚠️
+================================================================================
+
+🔒 NON condividere mai le chiavi QKD
+🔒 NON salvare chiavi in file di testo normale
+🔒 Usa sempre connessioni sicure (HTTPS/SSL)
+🔒 Cambia le chiavi periodicamente
+🔒 Verifica sempre i certificati

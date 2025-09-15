@@ -1,0 +1,76 @@
+🚀 COSA SUCCEDE QUANDO AVVII ALICE - GUIDA DETTAGLIATA
+
+================================================================================
+1. DOVE AVVII IL PROGRAMMA
+================================================================================
+
+📍 POSIZIONE: Nel terminale del computer aziendale (via AnyDesk)
+
+🔹 SEI NELLA CARTELLA GIUSTA?
+   Controlla che il prompt mostri: ~/alice-progetto/alice
+   Se non sei lì: cd ~/alice-progetto/alice
+
+🔹 AMBIENTE ATTIVO?
+   Controlla che vedi: (alice_ambiente) all'inizio della riga
+   Se non c'è: source alice_ambiente/bin/activate
+
+🔹 COMANDO PER AVVIARE:
+   python main.py
+   OPPURE
+   python app.py
+   OPPURE (se c'è)
+   python alice.py
+
+================================================================================
+2. COSA VEDRAI QUANDO SI AVVIA
+================================================================================
+
+✅ AVVIO RIUSCITO - Vedrai messaggi tipo:
+   * Starting Alice...
+   * Loading configuration...
+   * Server running on http://localhost:8080
+   * Alice is ready!
+   * Web interface available at: http://127.0.0.1:8080
+
+❌ PROBLEMI - Vedrai messaggi tipo:
+   * Error: Missing configuration
+   * ModuleNotFoundError: No module named 'xyz'
+   * Permission denied
+   * Port already in use
+
+================================================================================
+3. COME ACCEDERE AD ALICE DOPO L'AVVIO
+================================================================================
+
+🌐 INTERFACCIA WEB (più comune):
+   1. Apri un browser sul computer aziendale
+   2. Vai all'indirizzo: http://localhost:8080
+   3. Vedrai l'interfaccia di Alice
+
+💻 INTERFACCIA TERMINALE (meno comune):
+   Alice potrebbe funzionare direttamente nel terminale
+   Vedrai un prompt tipo: Alice> o >>>
+
+🖥️ INTERFACCIA GRAFICA (rara):
+   Potrebbe aprirsi una finestra automaticamente
+
+================================================================================
+4. PRIMI PASSI NELL'INTERFACCIA
+================================================================================
+
+🔐 SCHERMATA DI LOGIN (se presente):
+   - Username: (da definire)
+   - Password: (da definire)
+   - Oppure: accesso con chiavi QKD
+
+🏠 DASHBOARD PRINCIPALE:
+   - Stato del sistema
+   - Menu di navigazione
+   - Sezione configurazione
+   - Area QKD/crittografia
+
+⚙️ SEZIONE CONFIGURAZIONE:
+   - Impostazioni generali
+   - Configurazione QKD
+   - Gestione chiavi
+   - Connessioni di rete
