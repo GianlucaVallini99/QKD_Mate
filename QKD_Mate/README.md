@@ -1,14 +1,13 @@
-# QKD_Mate - Quantum Key Distribution Client (ETSI GS QKD 014)
+# QKD_Mate - Quantum Key Distribution Client
 
-Client Python per nodi QKD (Quantum Key Distribution) conforme allo standard **ETSI GS QKD 014** che permette di interfacciarsi con i Key Management Entity (KME) tramite connessioni HTTPS con autenticazione mTLS.
+Client Python conforme allo standard **ETSI GS QKD 014** per interfacciarsi con dispositivi QKD tramite connessioni HTTPS/mTLS.
 
-## 🔐 Panoramica
+## 🔐 Funzionalità
 
-QKD_Mate è un client Python progettato per interfacciarsi con dispositivi QKD secondo lo standard ETSI GS QKD 014. Fornisce un'interfaccia completa per:
-- Verificare lo stato dei link QKD tra nodi
-- Richiedere chiavi quantistiche sicure (master SAE)
-- Recuperare chiavi usando key ID (slave SAE)
-- Supportare comunicazioni multicast con multiple SAE
+- Verifica stato link QKD tra nodi
+- Richiesta chiavi quantistiche (master SAE)
+- Recupero chiavi tramite key ID (slave SAE)
+- Supporto comunicazioni multicast
 
 ## 🏗️ Architettura ETSI
 
@@ -61,230 +60,112 @@ cp /path/to/client_*.key certs/
 chmod 600 certs/*.key
 ```
 
-## ⚙️ API Endpoints (ETSI GS QKD 014)
+## ⚙️ API Endpoints
 
-### 1. Status - Verifica stato link QKD
-```
+### Status - Verifica stato link QKD
+```bash
 GET /api/v1/keys/{slave_id}/status
 ```
 
-**Esempio cURL:**
+### Get Key (Master) - Richiesta chiavi
 ```bash
-curl -X GET https://78.40.171.143:443/api/v1/keys/Bob2/status \
-  --cert certs/client_Alice2.crt \
-  --key certs/client_Alice2.key \
-  --cacert certs/ca.crt
-```
-
-**Risposta:**
-```json
-{
-  "source_KME_ID": "KME_Alice",
-  "target_KME_ID": "KME_Bob",
-  "master_SAE_ID": "Alice2",
-  "slave_SAE_ID": "Bob2",
-  "key_size": 256,
-  "stored_key_count": 1024,
-  "max_key_count": 10000,
-  "max_key_per_request": 100,
-  "max_key_size": 1024,
-  "min_key_size": 64,
-  "max_SAE_ID_count": 10
-}
-```
-
-### 2. Get Key (Master) - Richiesta chiavi
-```
 GET /api/v1/keys/{slave_id}/enc_keys?number={N}&size={S}
 ```
 
-**Parametri:**
-- `number`: Numero di chiavi richieste
-- `size`: Dimensione in bit (multiplo di 8)
-- `additional_slave_SAE_IDs`: Lista di SAE ID aggiuntivi (opzionale)
-
-**Esempio cURL:**
+### Get Key with IDs (Slave) - Recupero chiavi
 ```bash
-curl -X GET "https://78.40.171.143:443/api/v1/keys/Bob2/enc_keys?number=1&size=256" \
-  --cert certs/client_Alice2.crt \
-  --key certs/client_Alice2.key \
-  --cacert certs/ca.crt
-```
-
-**Risposta:**
-```json
-{
-  "keys": [
-    {
-      "key_ID": "550e8400-e29b-41d4-a716-446655440000",
-      "key": "A1B2C3D4E5F6..."
-    }
-  ]
-}
-```
-
-### 3. Get Key with IDs (Slave) - Recupero chiavi
-```
 GET /api/v1/keys/{master_id}/dec_keys?key_ID={id}
-GET /api/v1/keys/{master_id}/dec_keys?key_IDs={id1},{id2},...
 ```
 
-**Esempio cURL:**
+## 🔧 Utilizzo
+
+### Node Manager (Raccomandato)
 ```bash
-curl -X GET "https://78.40.171.144:443/api/v1/keys/Alice2/dec_keys?key_ID=550e8400-e29b-41d4-a716-446655440000" \
-  --cert certs/client_Bob2.crt \
-  --key certs/client_Bob2.key \
-  --cacert certs/ca.crt
+# Modalità interattiva
+python qkd_node_manager.py
+
+# Comandi diretti
+python qkd_node_manager.py status      # Verifica stato
+python qkd_node_manager.py keys 3      # Richiedi 3 chiavi
+python qkd_node_manager.py monitor     # Monitoraggio continuo
+python qkd_node_manager.py diagnostic  # Test completo
 ```
 
-## 🔧 Utilizzo del Client Python
-
-### Esempio Base - Flusso Completo
-
+### Esempi Python
 ```python
 from src.alice_client import alice_client
 from src.bob_client import bob_client
 
-# 1. Alice (master) richiede una chiave
+# Alice richiede chiavi
 alice = alice_client()
 resp = alice.get_key("Bob2", number=1, size=256)
 key_id = resp['keys'][0]['key_ID']
-print(f"Alice riceve key_ID: {key_id}")
 
-# 2. Alice comunica key_ID a Bob (canale classico)
-
-# 3. Bob (slave) recupera la chiave
+# Bob recupera chiavi
 bob = bob_client()
 resp = bob.get_key_with_ids("Alice2", [key_id])
-print(f"Bob recupera la chiave con ID: {key_id}")
 ```
 
 ### Script di Esempio
-
-#### Status del Link
 ```bash
-# Bob verifica status del link con Alice
-python examples/get_status_alice.py
-
-# Alice verifica status del link con Bob  
-python examples/get_status_bob.py
-```
-
-#### Scambio Chiavi Completo
-```bash
-# Esempio completo master/slave
-python examples/fetch_keys.py
-
-# Solo master (Alice richiede chiavi)
-python examples/fetch_keys.py --mode master --number 3 --size 512
-
-# Solo slave (Bob recupera con key_IDs)
-python examples/fetch_keys.py --mode slave --key-ids "id1" "id2" "id3"
-```
-
-#### Richieste Avanzate
-```bash
-# Esempi con parametri opzionali ETSI
-python examples/advanced_key_request.py
+python examples/fetch_keys.py                    # Flusso completo
+python examples/advanced_key_request.py          # Parametri avanzati
 ```
 
 ## 📁 Struttura del Progetto
 
 ```
 QKD_Mate/
-├── config/                     # Configurazioni
-│   ├── common.yaml            # API paths ETSI
-│   ├── alice.yaml             # Config Alice (78.40.171.143)
-│   └── bob.yaml               # Config Bob (78.40.171.144)
-│
-├── src/                       # Codice sorgente
-│   ├── client.py              # Client ETSI GS QKD 014
-│   ├── alice_client.py        # Helper Alice
-│   ├── bob_client.py          # Helper Bob
-│   └── utils.py               # Utilities
-│
-├── examples/                  # Script dimostrativi
-│   ├── get_status_alice.py    # Status link Bob→Alice
-│   ├── get_status_bob.py      # Status link Alice→Bob
-│   ├── fetch_keys.py          # Flusso master/slave
-│   └── advanced_key_request.py # Funzionalità avanzate
-│
-├── certs/                     # Certificati mTLS
-│   ├── ca.crt                 # Certificate Authority
-│   ├── client_Alice2.crt/key  # Certificati Alice
-│   └── client_Bob2.crt/key    # Certificati Bob
-│
-├── requirements.txt           # Dipendenze Python
-└── README.md                  # Questa documentazione
+├── config/                     # Configurazioni YAML
+├── src/                        # Codice sorgente
+├── examples/                   # Script dimostrativi
+├── certs/                      # Certificati mTLS (da aggiungere)
+├── qkd_node_manager.py         # Gestore nodo unificato
+├── node_config.yaml            # Configurazione nodo
+└── requirements.txt            # Dipendenze Python
 ```
 
-## 🔐 Sicurezza
+## 🔐 Configurazione
 
-### Autenticazione mTLS
-- Ogni SAE ha certificati univoci (Alice2, Bob2)
-- Tutte le comunicazioni su HTTPS porta 443
-- Verifica bidirezionale dei certificati
+### Certificati
+1. Copia i certificati nella directory `certs/`
+2. Imposta permessi: `chmod 600 certs/*.key`
+3. Configura il tipo di nodo in `node_config.yaml`
 
-### Best Practices
-1. **Protezione chiavi private**: `chmod 600` su tutti i file `.key`
-2. **Validazione parametri**: `size` deve essere multiplo di 8
-3. **Gestione errori**: Il client gestisce errori 400/401/503 secondo ETSI
-4. **Key ID sicuri**: Comunicare key_ID solo su canale autenticato
+### Configurazione Nodo
+```yaml
+# node_config.yaml
+node_type: alice  # o "bob"
+```
 
 ## 🐛 Troubleshooting
 
-### Errori Comuni
-
-#### HTTP 400 - Bad Request
-- **Causa**: Parametri non validi (es. size non multiplo di 8)
-- **Soluzione**: Verificare i parametri della richiesta
-
-#### HTTP 401 - Unauthorized  
-- **Causa**: Certificato client non valido o non autorizzato
-- **Soluzione**: Verificare certificati e autorizzazioni sul KME
-
-#### HTTP 503 - Service Unavailable
-- **Causa**: KME temporaneamente non disponibile o senza chiavi
-- **Soluzione**: Riprovare più tardi o verificare stato link QKD
-
-### Test di Connettività
-
+### Test Rapido
 ```bash
-# Test porta 443
-nc -zv 78.40.171.143 443
+python qkd_node_manager.py diagnostic
+```
 
-# Test con OpenSSL
-openssl s_client -connect 78.40.171.143:443 \
-  -cert certs/client_Alice2.crt \
-  -key certs/client_Alice2.key \
-  -CAfile certs/ca.crt
+### Errori Comuni
+- **HTTP 401**: Verificare certificati e autorizzazioni
+- **HTTP 503**: KME non disponibile o senza chiavi
+- **Connection refused**: Verificare connettività di rete
+
+### Test Connettività
+```bash
+nc -zv 78.40.171.143 443  # Test porta KME Alice
+nc -zv 78.40.171.144 443  # Test porta KME Bob
 ```
 
 ## 📊 Conformità ETSI GS QKD 014
 
-Questo client implementa:
-- ✅ Status API (GET /api/v1/keys/{slave_id}/status)
-- ✅ Enc Keys API per master (GET /api/v1/keys/{slave_id}/enc_keys)
-- ✅ Dec Keys API per slave (GET /api/v1/keys/{master_id}/dec_keys)
-- ✅ Supporto key_ID singolo e multipli
-- ✅ Parametri opzionali (additional_slave_SAE_IDs, extensions)
-- ✅ Validazione size multiplo di 8
-- ✅ Gestione errori standard (400/401/503)
+✅ Implementa tutti gli endpoint standard  
+✅ Supporto parametri opzionali e validazione  
+✅ Gestione errori conforme alle specifiche  
 
 ## 🤝 Contribuire
 
-1. Fork il repository
-2. Crea branch: `git checkout -b feature/nuova-funzionalita`
-3. Commit: `git commit -m 'Aggiunge nuova funzionalità'`
-4. Push: `git push origin feature/nuova-funzionalita`
-5. Apri Pull Request
+Vedi [CONTRIBUTING.md](CONTRIBUTING.md) per le linee guida.
 
 ## 📄 Licenza
 
-Distribuito sotto licenza MIT. Vedi `LICENSE` per dettagli.
-
-## 🙏 Riconoscimenti
-
-- Conforme a ETSI GS QKD 014 V1.1.1 (2019-02)
-- Compatibile con dispositivi QKD commerciali
-- Utilizza best practices per sicurezza mTLS
+MIT License - vedi `LICENSE` per dettagli.
