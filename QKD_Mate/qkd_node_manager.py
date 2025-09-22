@@ -92,8 +92,9 @@ class QKDNodeManager:
         
     def check_certificates(self):
         """Verifica che i certificati necessari siano presenti"""
+        ca_cert = f"ca_{self.node_name.lower()}.crt"
         required_certs = [
-            "ca.crt", 
+            ca_cert, 
             f"{self.cert_prefix}.crt", 
             f"{self.cert_prefix}.key"
         ]
@@ -237,7 +238,8 @@ class QKDNodeManager:
         
         # 1. Verifica certificati
         print(f"\n{BLUE}1. Verifica certificati:{RESET}")
-        cert_files = ["ca.crt", f"{self.cert_prefix}.crt", f"{self.cert_prefix}.key"]
+        ca_cert = f"ca_{self.node_name.lower()}.crt"
+        cert_files = [ca_cert, f"{self.cert_prefix}.crt", f"{self.cert_prefix}.key"]
         all_certs_ok = True
         for cert in cert_files:
             path = f"certs/{cert}"

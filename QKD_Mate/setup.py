@@ -144,13 +144,14 @@ class QKDSetup:
             except:
                 pass
         
-        required_certs = ["ca.crt"]
+        required_certs = []
         if node_type == "alice":
-            required_certs.extend(["client_Alice2.crt", "client_Alice2.key"])
+            required_certs.extend(["ca_alice.crt", "client_Alice2.crt", "client_Alice2.key"])
         elif node_type == "bob":
-            required_certs.extend(["client_Bob2.crt", "client_Bob2.key"])
+            required_certs.extend(["ca_bob.crt", "client_Bob2.crt", "client_Bob2.key"])
         else:
             required_certs.extend([
+                "ca_alice.crt", "ca_bob.crt",
                 "client_Alice2.crt", "client_Alice2.key",
                 "client_Bob2.crt", "client_Bob2.key"
             ])

@@ -42,9 +42,8 @@ class CertificateManager:
         
         # Certificati richiesti per ogni nodo
         self.cert_templates = {
-            "common": ["ca.crt"],
-            "alice": ["client_Alice2.crt", "client_Alice2.key"],
-            "bob": ["client_Bob2.crt", "client_Bob2.key"]
+            "alice": ["ca_alice.crt", "client_Alice2.crt", "client_Alice2.key"],
+            "bob": ["ca_bob.crt", "client_Bob2.crt", "client_Bob2.key"]
         }
     
     def print_header(self, title):
