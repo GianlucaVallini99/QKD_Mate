@@ -39,18 +39,38 @@ Il sistema implementa l'architettura master/slave definita da ETSI:
 
 ## 🚀 Installazione
 
-1. **Clona il repository**
+### Installazione Automatica (Raccomandato)
 ```bash
+# Clona il repository
 git clone https://github.com/[tuo-username]/QKD_Mate.git
 cd QKD_Mate
+
+# Installazione automatica con setup guidato
+python install.py
+
+# Oppure installazione silenziosa
+python install.py --silent
 ```
 
-2. **Installa le dipendenze**
+### Installazione Manuale
+```bash
+# Setup automatizzato nel repository
+python setup.py
+
+# Gestione certificati semplificata
+python cert_manager.py install
+```
+
+### Installazione Tradizionale
+<details>
+<summary>Clicca per vedere i passaggi manuali</summary>
+
+1. **Installa le dipendenze**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Prepara la directory dei certificati**
+2. **Prepara la directory dei certificati**
 ```bash
 mkdir -p certs
 # Copia i certificati forniti
@@ -59,6 +79,12 @@ cp /path/to/client_*.crt certs/
 cp /path/to/client_*.key certs/
 chmod 600 certs/*.key
 ```
+
+3. **Configura il nodo**
+```bash
+echo "node_type: alice" > node_config.yaml  # o "bob"
+```
+</details>
 
 ## ⚙️ API Endpoints
 
@@ -89,6 +115,25 @@ python qkd_node_manager.py status      # Verifica stato
 python qkd_node_manager.py keys 3      # Richiedi 3 chiavi
 python qkd_node_manager.py monitor     # Monitoraggio continuo
 python qkd_node_manager.py diagnostic  # Test completo
+```
+
+### Strumenti di Installazione e Gestione
+```bash
+# Setup automatizzato
+python setup.py                        # Setup guidato completo
+python setup.py --verify               # Verifica installazione
+
+# Gestione certificati
+python cert_manager.py install         # Installazione guidata certificati
+python cert_manager.py validate        # Validazione certificati
+python cert_manager.py fix             # Riparazione automatica
+python cert_manager.py backup          # Backup certificati
+python cert_manager.py list            # Lista certificati installati
+
+# Installer universale
+python install.py                      # Installazione completa sistema
+python install.py --silent             # Installazione automatica
+python install.py --uninstall          # Disinstallazione
 ```
 
 ### Esempi Python
@@ -136,6 +181,26 @@ QKD_Mate/
 ```yaml
 # node_config.yaml
 node_type: alice  # o "bob"
+```
+
+## 🚀 Avvio Rapido
+
+### Per Utenti Principianti
+```bash
+# Avvio guidato con interfaccia semplificata
+python quick_start.py
+
+# Oppure (Windows)
+start.bat
+
+# Oppure (Linux/macOS)  
+./start.sh
+```
+
+### Per Utenti Esperti
+```bash
+# Avvio diretto del node manager
+python qkd_node_manager.py
 ```
 
 ## 🐛 Troubleshooting
