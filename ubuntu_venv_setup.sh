@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "==============================================="
+echo "🐍 QKD_Mate Virtual Environment Setup"
+echo "==============================================="
+echo ""
+echo "Ubuntu 24.04+ uses externally managed Python environments."
+echo "Here are the solutions (choose ONE):"
+echo ""
+
+echo "🔧 SOLUTION 1: Use Virtual Environment (RECOMMENDED)"
+echo "---------------------------------------------------"
+echo "cd ~/QKD_mate/QKD_Mate"
+echo "python3 -m venv venv"
+echo "source venv/bin/activate"
+echo "pip install --upgrade pip"
+echo "pip install requests urllib3 pyyaml cryptography"
+echo "python3 quick_start.py"
+echo ""
+
+echo "🔧 SOLUTION 2: Install system packages"
+echo "--------------------------------------"
+echo "sudo apt update"
+echo "sudo apt install -y python3-requests python3-urllib3 python3-yaml python3-cryptography"
+echo "python3 quick_start.py"
+echo ""
+
+echo "🔧 SOLUTION 3: Override system protection (NOT RECOMMENDED)"
+echo "----------------------------------------------------------"
+echo "pip3 install --break-system-packages requests urllib3 pyyaml cryptography"
+echo ""
+
+echo "==============================================="
+echo "💡 RECOMMENDED: Use Solution 1 (Virtual Environment)"
+echo "This keeps your system clean and isolated."
+echo "==============================================="
