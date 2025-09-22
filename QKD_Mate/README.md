@@ -73,8 +73,10 @@ pip install -r requirements.txt
 2. **Prepara la directory dei certificati**
 ```bash
 mkdir -p certs
-# Copia i certificati forniti
-cp /path/to/ca.crt certs/
+# Copia i certificati CA specifici per nodo
+cp /path/to/ca_alice.crt certs/  # Per Alice
+cp /path/to/ca_bob.crt certs/    # Per Bob
+# Copia i certificati client
 cp /path/to/client_*.crt certs/
 cp /path/to/client_*.key certs/
 chmod 600 certs/*.key
